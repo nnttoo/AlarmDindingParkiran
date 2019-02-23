@@ -1,0 +1,114 @@
+<html>
+<head>
+	<title>Game Sederhana</title>
+	
+</head>
+<body>
+	<canvas id=mycanvas style="background : #f2d905"></canvas>
+	<script> 
+	var Orang = function(x,y){
+		this.x = x;
+		this.y = y;
+	};
+	
+	var Game = function(){
+		this.canvas = document.getElementById('mycanvas');
+		this.context = this.canvas.getContext('2d');
+		this.canvas.width = window.innerWidth;
+		this.canvas.height = window.innerHeight; 
+		
+		this.img = new Image();
+		this.img.src = "orang.png";
+		
+		this.orangpos = 0;
+		this.oranglist = [
+			new Orang(0,0),
+			new Orang(159,0),
+			new Orang(325,0),
+			new Orang(496,0),
+			new Orang(669,0), 
+			new Orang(837,0) 
+		];
+		
+		this.orangxpos = 0;
+		this.orangxDes = 0;
+		this.orangypos = 0;
+		this.orangyDes = 0;
+		this.canvas.addEventListener("click", function(e){
+			game.orangxDes = e.pageX;
+			game.orangyDes = e.pageY;
+		});
+		
+		this.flipped = false;
+	};
+	Game.prototype.loop = function(){ 
+		this.drawOrang(); 
+		setTimeout(function(){
+			game.loop();
+		},100);
+	};
+	
+	Game.prototype.drawOrang = function(){
+		this.orangpos++;
+		if(this.orangpos >= this.oranglist.length) this.orangpos = 0;
+		
+		var myorang = this.oranglist [this.orangpos];
+		
+		if(this.orangxDes > this.orangxpos){
+			this.orangxpos +=10; 
+			if(this.flipped){
+				this.context.translate(this.canvas.width, 0);
+				this.context.scale(-1,1);
+				this.flipped = false;
+			}
+			
+		} else if(this.orangxDes < this.orangxpos){
+			this.orangxpos -=10; 
+			
+			if(!this.flipped){
+				this.context.translate(this.canvas.width, 0);
+				this.context.scale(-1,1);
+				this.flipped = true;
+			}
+		} 
+		
+
+		
+		var selisihx = Math.abs( this.orangxpos -  this.orangxDes);
+		if(selisihx < 10) this.orangxpos = this.orangxDes;
+		
+		
+		var selisihy =  Math.abs( this.orangypos -  this.orangyDes);
+		
+		var langkahya = (selisihx > 0)?  selisihy / (selisihx / 10) : 10;
+		
+		if(selisihy < 10){
+			this.orangypos = this.orangyDes;
+		}
+		
+		if(this.orangyDes > this.orangypos){
+			this.orangypos +=langkahya;
+		} else if(this.orangyDes < this.orangypos){
+			this.orangypos -=langkahya;
+		}
+		
+		
+		var sx = myorang.x;
+		var sy = myorang.y;
+		var swidth = 165;
+		var sheight = 252;
+		var x = (this.flipped) ? this.canvas.width - this.orangxpos :  this.orangxpos;
+		var y = this.orangypos;
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		 this.context.drawImage(this.img,sx,sy,swidth,sheight,x,y,swidth,sheight);
+		 
+		 //context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
+	};
+	
+	
+	var game = new Game();
+	game.loop();
+	
+	</script>
+</body>
+</html>
